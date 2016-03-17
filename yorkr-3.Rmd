@@ -8,7 +8,7 @@ output: html_document
 ## Introduction
 This is the 3rd part of my cricket package **yorkr** in R. In my 2 earlier posts  
 
-a. [The making of cricket package yorkr - Part 1]()
+a. [The making of cricket package yorkr - Part 1](https://gigadom.wordpress.com/2016/03/05/the-making-of-cricket-package-yorkr-part-1-2/). In this post I analyze the performance of team in a ODI match. The batting and bowling performances of the team were analyzed. This post also performed analyses of a country in all matches against another country for e.g. India vs All matches of Australia. The best performers with the bat and ball were determined, the best batting partenrships, the detailed performances of the bowlers of India and Australia in the confrontation was also analyzed.
 
 b.[The making of cricket package yorkr - Part 2](https://gigadom.wordpress.com/2016/03/09/the-making-of-cricket-package-yorkr-part-2/)
 This post includes all ODI matches between a country and others. For obvious reasons I have chosen India and selected all ODI matches played by India with other countries. This included batting and bowling performances of the country against all oppositions.
@@ -22,8 +22,8 @@ library(dplyr)
 library(ggplot2)
 library(yorkr)
 library(reshape2)
-library(rpart.plot)
 library(gridExtra)
+library(rpart.plot)
 ```
 
 
@@ -45,9 +45,9 @@ devilliers <-  getBatsmanDetails(team="South Africa",name="Villiers")
 Now we can compare the performances of these 3 batsmen
 ```{r}
 
-p1 <-batsmanDeliveriesVsRuns("Kohli",kohli)
-p2 <- batsmanDeliveriesVsRuns("Dhoni",dhoni)
-p3 <- batsmanDeliveriesVsRuns("De Villiers",devilliers)
+p1 <-batsmanRunsVsDeliveries(kohli,"Kohli")
+p2 <- batsmanRunsVsDeliveries(dhoni, "Dhoni")
+p3 <- batsmanRunsVsDeliveries(devilliers,"De Villiers")
 grid.arrange(p1,p2,p3, ncol=3)
 
 ```
