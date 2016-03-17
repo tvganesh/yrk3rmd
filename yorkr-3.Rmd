@@ -10,12 +10,14 @@ This is the 3rd part of my cricket package **yorkr** in R. In my 2 earlier posts
 
 a. [The making of cricket package yorkr - Part 1](https://gigadom.wordpress.com/2016/03/05/the-making-of-cricket-package-yorkr-part-1-2/). In this post I analyze the performance of team in a ODI match. The batting and bowling performances of the team were analyzed. This post also performed analyses of a country in all matches against another country for e.g. India vs All matches of Australia. The best performers with the bat and ball were determined, the best batting partenrships, the detailed performances of the bowlers of India and Australia in the confrontation was also analyzed.
 
-b.[The making of cricket package yorkr - Part 2](https://gigadom.wordpress.com/2016/03/09/the-making-of-cricket-package-yorkr-part-2/)
+b. [The making of cricket package yorkr - Part 2](https://gigadom.wordpress.com/2016/03/09/the-making-of-cricket-package-yorkr-part-2/)
 This post includes all ODI matches between a country and others. For obvious reasons I have chosen India and selected all ODI matches played by India with other countries. This included batting and bowling performances of the country against all oppositions.
 
 As mentioned in my earlier posts the data is taken from [Cricsheet](http://cricsheet.org/)
 
-In this post I look at individual performances of batsmen and bowlers in ODIs. For this post I have chose Virat Kohli & Mahendra Singh Dhoni from India and AB Devilliers from South Africa. For bowling analyses I have selected RA Jadeja, Harbhajan Singh and Mitchell Johnson
+In this post I look at individual performances of batsmen and bowlers in ODIs. For this post I have chosen Virat Kohli & Mahendra Singh Dhoni from India. Kohli has been consistent and in great form right through. Dhoni follows Kohli very closely in ODIs. Dhoni besides his shrewd captaincy is one of the best ODI batsman and a great finisher. I have include AB Devilliers from South Africa who seems to invent new strokes and shots every time, much like Glenn Maxwell. 
+
+For bowling analyses I have selected RA Jadeja, Harbhajan Singh *the top Indian ODI bowlers)  and Mitchell Johnson who is among the best in the world.
 
 ```{r message=FALSE,warning=FALSE}
 library(dplyr)
@@ -26,24 +28,35 @@ library(gridExtra)
 library(rpart.plot)
 ```
 
+###1. Batting Details
+The following functions get the overall batting details for a country against all opposition.
 
-
-```{r cache=TRUE}
+```{r bat,cache=TRUE}
 a <- getTeamBattingDetails("India",save=TRUE)
 b <- getTeamBattingDetails("South Africa",save=TRUE)
 
 ```
 
-Now get the details of the batsmen Virat Kohli and Mahendra Singh Dhoni from the saved India file and AB De Villiers from the saved South Africa file
-```{r}
+###2. Get Batsman details
+Now I get the details of the batsmen Virat Kohli and Mahendra Singh Dhoni from the saved India file and AB De Villiers from the saved South Africa file
+```{r batsman,cache=TRUE}
 kohli <- getBatsmanDetails(team="India",name="Kohli")
 dhoni <- getBatsmanDetails(team="India",name="Dhoni")
 devilliers <-  getBatsmanDetails(team="South Africa",name="Villiers")
 
 ```
 
-Now we can compare the performances of these 3 batsmen
+###3. Display the dataframe
+the dataframe obtained from the calls above provide detailed information for the batsman in every ODI match. This dataframe has all the fields that can be obtained from ESPN Cricinfo
 ```{r}
+knitr::kable(head(kohli))
+```
+## Performance analyses of the batsmen
+###4. Runs vs deliveries plot
+It can be seen from the plots below that Kohli is very consistent in the runs scored. The runs crowd near the regression curve. There is more variance in Dhoni and De Villiers performance. The band on either side of the regression curve represents the 95%
+confidence interval(A 95% confidence interval is a range of values that you can be 95% certain contains the true mean of the population).
+
+```{r runsDel,cache=TRUE,fig.width=10}
 p1 <-batsmanRunsVsDeliveries(kohli,"Kohli")
 p2 <- batsmanRunsVsDeliveries(dhoni, "Dhoni")
 p3 <- batsmanRunsVsDeliveries(devilliers,"De Villiers")
@@ -51,7 +64,9 @@ grid.arrange(p1,p2,p3, ncol=3)
 
 ```
 
-```{r}
+###5. Total runs vs 4s vs 6s plot
+The plots below show the runs (Total runs, Runs from 4s & Runs from sixes) vs the deliveries faced. Kohli scores more runs and more fours which can be evaluated from the slope of the blue and red regression lines (reaches 150+,50+ for Total runs and runs from fours). De Villers has more Runs from sixes as can be seen the 3rd sub plot (green line)
+```{r 4s6s,cache=TRUE,fig.width=10}
 kohli46 <- select(kohli,batsman,ballsPlayed,fours,sixes,runs)
 p1 <- batsmanFoursSixes(kohli46,"Kohli")
 dhoni46 <- select(dhoni,batsman,ballsPlayed,fours,sixes,runs)
@@ -62,8 +77,9 @@ grid.arrange(p1,p2,p3, ncol=3)
 
 ```
 
-```{r}
-
+###6. Batsmen dismissals
+Interestingly it can be seen that Dhoni has remained unbeaten more often (47 times) than Kohli or De Villiers. Dhoni despite being a great runner between wickets has been run-out more often.
+```{r dismissal,cache=TRUE,fig.width=10}
 p1 <-batsmanDismissals(kohli,"Kohli")
 p2 <- batsmanDismissals(dhoni, "Dhoni")
 p3 <- batsmanDismissals(devilliers, "De Villiers")
@@ -71,8 +87,9 @@ grid.arrange(p1,p2,p3, ncol=3)
 
 ```
 
-```{r}
-
+###7. Batsmen Strike Rate
+From the plot below Kohli has the best strike rate till 100 runs, the slope seems to steeper. De Villiers seems to do better after 100 runs.
+```{r meanSR, cache=TRUE,fig.width=10}
 p1 <-batsmanMeanStrikeRate(kohli,"Kohli")
 p2 <- batsmanMeanStrikeRate(dhoni, "Dhoni")
 p3 <- batsmanMeanStrikeRate(devilliers, "De Villiers")
@@ -80,35 +97,39 @@ grid.arrange(p1,p2,p3, ncol=3)
 
 ```
 
-```{r}
+###8. Batsmen moving average
+Kohli and De Villiers  form can be seem to be improving over the years. Dhoni seems to have hitting a slump in recent times. But we have to keep in mind that he has the second highest ODI runs in India and is just behind Kohli
+```{r bmanMA,cache=TRUE,fig.width=10}
 p1 <-batsmanMovingAverage(kohli,"Kohli")
 p2 <- batsmanMovingAverage(dhoni, "Dhoni")
 p3 <- batsmanMovingAverage(devilliers, "De Villiers")
 grid.arrange(p1,p2,p3, ncol=3)
 ```
 
-```{r}
+###9. Batsmen runs against opposition
+Kohli averages 50 runs against 6 countries, to Dhoni's 4. Kohli performs well against Australia, New Zealand, West Indies,Pakistan,Bangladesh. Kohli's performance against England has been mediocre. De Villiers averages around 50 with 5 countries
+```{r bmanOppn,cache=TRUE,fig.width=10}
 batsmanRunsAgainstOpposition(kohli,"Kohli")
 batsmanRunsAgainstOpposition(dhoni, "Dhoni")
 batsmanRunsAgainstOpposition(devilliers, "De Villiers")
 
 ```
 
-```{r}
+
+###10. Batsmen runs at different venues
+Kohli's favorite hunting grounds in ODI are Adelaide, Sydney, Western Australia, Wankhede. Dhoni's best performances are at Lords, Sydney,Chepauk.
+```{r bmanOppn1,cache=TRUE,fig.width=10}
 batsmanRunsVenue(kohli,"Kohli")
 batsmanRunsVenue(dhoni, "Dhoni")
 batsmanRunsVenue(devilliers, "De Villiers")
 
 ```
 
-```{r}
-p1 <-batsmanRunsVsDeliveries(kohli,"Kohli")
-p2 <- batsmanRunsVsDeliveries(dhoni, "Dhoni")
-p3 <- batsmanRunsVsDeliveries(devilliers, "De Villiers")
-grid.arrange(p1,p2,p3, ncol=3)
-```
+###11. Batsmen runs predict
+The plots below predict the number of deliveries needed by each batsmen to score runs shown. For this I have used classification trees based on deliveries and runs using the package rpart.
+From the plot for Kohli it can be seen that for <26 deliveries Kohli on an average scores 8 runs(7.6), for <58 deliveries scores 30 runs but for >58 deliveries scores around 52 runs. On the other hand De Villiers needs just over 40 deliveries to score 52 runs.
 
-```{r}
+```{r runsPred,,cache=TRUE,fig.width=10}
 par(mfrow=c(1,3))
 par(mar=c(4,4,2,2))
 batsmanRunsPredict(kohli,"Kohli")
@@ -117,20 +138,32 @@ batsmanRunsPredict(devilliers, "De Villiers")
 dev.off()
 ```
 
-```{r cache=TRUE}
+###12. Get team bowling details
+The function below all the ODI matches between India or Australia and all other countries
+```{r bowl,cache=TRUE}
 c <- getTeamBowlingDetails("India",save=TRUE)
 d <- getTeamBowlingDetails("Australia",save=TRUE)
 
 ```
 
-```{r}
+###13. Get wicket details
+The functions below gets the data frame for each bowler
+```{r wicketDet,cache=TRUE}
 jadeja <- getBowlerWicketDetails(team="India",name="Jadeja")
 harbhajan <- getBowlerWicketDetails(team="India",name="Harbhajan")
 ashwin <- getBowlerWicketDetails(team="India",name="Ashwin")
 johnson <-  getBowlerWicketDetails(team="Australia",name="Johnson")
 ```
 
+###14. Display data frame
+The details of the data frame is shown below
 ```{r}
+knitr::kable(head(jadeja))
+```
+
+###15. Bowler Economy rate
+Harbhajan and Ashwin have a better economy rate than RA Jadeja
+```{r ER,cache=TRUE,fig.width=10}
 p1 <- bowlerEconomyRate(jadeja,"RA Jadeja")
 p2<-bowlerEconomyRate(harbhajan, "Harbhajan")
 p3<-bowlerEconomyRate(ashwin, "Ashwin")
@@ -138,7 +171,8 @@ p4<-bowlerEconomyRate(johnson, "MG Johnson")
 grid.arrange(p1,p2,p3,p4, ncol=2)
 ```
 
-```{r}
+###15. Mean runs conceded by bowler
+```{r meanRuns,cache=TRUE,fig.width=10}
 p1<-bowlerMeanRuns(jadeja,"RA Jadeja")
 p2<-bowlerMeanRuns(harbhajan, "Harbhajan")
 p3<-bowlerMeanRuns(ashwin, "Ashwin")
@@ -146,7 +180,9 @@ p4<-bowlerMeanRuns(johnson, "MG Johnson")
 grid.arrange(p1,p2,p3,p4, ncol=2)
 ```
 
-```{r}
+###15. Moving average of bowler
+From the plots below MG Johnson, Harbhajan and Ashwin have been performing very consistently. RA Jadeja bowling seems to be taking a nosedive, though he is at the top of all ODI bowlers of India
+```{r bwlrMA,cache=TRUE,fig.width=10}
 p1<-bowlerMovingAverage(jadeja,"RA Jadeja")
 p2<-bowlerMovingAverage(harbhajan, "Harbhajan")
 p3<-bowlerMovingAverage(ashwin, "Ashwin")
@@ -154,7 +190,9 @@ p4<-bowlerMovingAverage(johnson, "MG Johnson")
 grid.arrange(p1,p2,p3,p4, ncol=2)
 ```
 
-```{r}
+###16. Wicket average
+Jadeja has a better wicket average than Harbhajan and Ashwin.Jadeja and Aswin average around 2 wickets Harbhajan averages  1.5 wickets(tendency to 2)
+```{r bwlrWkt,cache=TRUE,fig.width=10}
 p1<-bowlerWicketPlot(jadeja,"RA Jadeja")
 p2<-bowlerWicketPlot(harbhajan, "Harbhajan")
 p3<-bowlerWicketPlot(ashwin, "Ashwin")
@@ -162,7 +200,9 @@ p4<-bowlerWicketPlot(johnson, "MG Johnson")
 grid.arrange(p1,p2,p3,p4, ncol=2)
 ```
 
-```{r}
+###16. Wickets opposition
+Jadeja's best performances have been against England, Pakistan, New Zealand and Zimbabwe. For Harbhajan it has been New Zealand, Sri Lanka and Zimbabwe.
+```{r bwlrOppn,cache=TRUE,fig.width=10}
 bowlerWicketsAgainstOpposition(jadeja,"RA Jadeja")
 bowlerWicketsAgainstOpposition(harbhajan, "Harbhajan")
 bowlerWicketsAgainstOpposition(ashwin, "Ashwin")
@@ -170,7 +210,9 @@ bowlerWicketsAgainstOpposition(johnson, "MG Johnson")
 
 ```
 
-```{r}
+###16. Wickets venue
+The top 20 venues for each bowler is shown in the plots
+```{r bwlrVenue,fig.width=10}
 bowlerWicketsVenue(jadeja,"RA Jadeja")
 bowlerWicketsVenue(harbhajan, "Harbhajan")
 bowlerWicketsVenue(ashwin, "Ashwin")
@@ -178,14 +220,19 @@ bowlerWicketsVenue(johnson, "MG Johnson")
 
 ```
 
-```{r}
+###16. Create a data frame with wickets and deliveries
+```{r delVkt,cache=TRUE}
 jadeja1 <- getDeliveryWickets(team="India",name="Jadeja",save=FALSE)
 harbhajan1 <- getDeliveryWickets(team="India",name="Harbhajan",save=FALSE)
 ashwin1 <- getDeliveryWickets(team="India",name="Ashwin",save=FALSE)
 johnson1 <- getDeliveryWickets(team="Australia",name="MG Johnson",save=FALSE)
 ```
 
-```{r}
+###17. Deliveries to wickets plots
+The following plots try to predict the average number of deliveries required for the wickets taken. As in the batsman runs predict I have used classification trees between deliverie at which a wicket was taken. The package rpart was used for the classification. The internediate nodes are the number of deliveries and the leaf nodes are the wickets taken. Though the wickets are in decimal we can intepret the tree as follows
+For RA Jadeja <22 deliveries result in 1.2 (~1 wicket) and >22 to take 1.6 wicket (~2 wickets). Interestingly Harbhajan needs <9.5 deliveries to take a wicket. Harbhajan is more likely to provide a quicker breakthrough.
+
+```{r wktPrd1,cache=TRUE,fig.width=10}
 par(mfrow=c(1,2))
 par(mar=c(4,4,2,2))
 bowlerWktsPredict(jadeja1,"RA Jadeja")
@@ -193,7 +240,8 @@ bowlerWktsPredict(harbhajan1,"Harbhajan Sigh")
 dev.off()
 ```
 
-```{r}
+Similarly MG Johnson can provide a breakthrough with just around 14 deliveries
+```{r wktPred2,cache=TRUE,fig.width=10}
 par(mfrow=c(1,2))
 par(mar=c(4,4,2,2))
 bowlerWktsPredict(ashwin1,"Ravichander Ashwin")
@@ -201,4 +249,17 @@ bowlerWktsPredict(johnson1,"MG Johnson")
 dev.off()
 ```
 
-knitr::kable(head(jadeja))
+## Conclusion
+
+###ODI batsman
+1. The top 2 ODI Indian batsman(Kohli and Dhoni)  and De Villiers of South Africa were considered.
+2. Kohli has a better strike rate till about 100 runs(steeper slope) and De Villiers beyond 100.
+3. Dhoni has remained unbeaten more number of times than the other 2. It may have been possible that his average would have been higher if he had come in earlier
+4. Kohli and De Villiers have performed consistently. Dhoni needs to get back his touch
+
+
+###ODI bowlers
+1. RA Jadeja has a better wicket taking rate than Harbhajan and Ashwin.
+2. Ashwin and Harbhajan have a better economy rate than Jadeja
+3. harbhjanan, Ashwin and MG Johnson have performed consistently while RA Jadeja's performance has been on the decline.
+4. harbhajan and MG Johnson need around 11 balls to make a break through
