@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+bundleId:
+        https://api.rpubs.com/api/v1/document/161797/5d8311a61c2e4560a44ea8d71d92d585
+url: http://rpubs.com/tvganesh/161797
+when: 1458227933.63649
