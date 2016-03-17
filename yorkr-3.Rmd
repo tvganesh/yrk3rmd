@@ -1,0 +1,204 @@
+---
+title: "The making of cricket package yorkr - Part 3"
+author: "Tinniam V Ganesh"
+date: "March 16, 2016"
+output: html_document
+---
+
+## Introduction
+This is the 3rd part of my cricket package **yorkr** in R. In my 2 earlier posts  
+
+a. [The making of cricket package yorkr - Part 1]()
+
+b.[The making of cricket package yorkr - Part 2](https://gigadom.wordpress.com/2016/03/09/the-making-of-cricket-package-yorkr-part-2/)
+This post includes all ODI matches between a country and others. For obvious reasons I have chosen India and selected all ODI matches played by India with other countries. This included batting and bowling performances of the country against all oppositions.
+
+As mentioned in my earlier posts the data is taken from [Cricsheet](http://cricsheet.org/)
+
+In this post I look at individual performances of batsmen and bowlers in ODIs. For this post I have chose Virat Kohli & Mahendra Singh Dhoni from India and AB Devilliers from South Africa. For bowling analyses I have selected RA Jadeja, Harbhajan Singh and Mitchell Johnson
+
+```{r message=FALSE,warning=FALSE}
+library(dplyr)
+library(ggplot2)
+library(yorkr)
+library(reshape2)
+library(rpart.plot)
+library(gridExtra)
+```
+
+
+
+```{r cache=TRUE}
+a <- getTeamBattingDetails("India",save=TRUE)
+b <- getTeamBattingDetails("South Africa",save=TRUE)
+
+```
+
+Now get the details of the batsmen Virat Kohli and Mahendra Singh Dhoni from the saved India file and AB De Villiers from the saved South Africa file
+```{r}
+kohli <- getBatsmanDetails(team="India",name="Kohli")
+dhoni <- getBatsmanDetails(team="India",name="Dhoni")
+devilliers <-  getBatsmanDetails(team="South Africa",name="Villiers")
+
+```
+
+Now we can compare the performances of these 3 batsmen
+```{r}
+
+p1 <-batsmanDeliveriesVsRuns("Kohli",kohli)
+p2 <- batsmanDeliveriesVsRuns("Dhoni",dhoni)
+p3 <- batsmanDeliveriesVsRuns("De Villiers",devilliers)
+grid.arrange(p1,p2,p3, ncol=3)
+
+```
+
+```{r}
+kohli46 <- select(kohli,batsman,ballsPlayed,fours,sixes,runs)
+p1 <- batsmanFoursSixes(kohli46,"Kohli")
+dhoni46 <- select(dhoni,batsman,ballsPlayed,fours,sixes,runs)
+p2 <- batsmanFoursSixes(dhoni46,"Dhoni")
+devilliers46 <- select(devilliers,batsman,ballsPlayed,fours,sixes,runs)
+p3 <- batsmanFoursSixes(devilliers46, "De Villiers")
+grid.arrange(p1,p2,p3, ncol=3)
+
+```
+
+```{r}
+
+p1 <-batsmanDismissals(kohli,"Kohli")
+p2 <- batsmanDismissals(dhoni, "Dhoni")
+p3 <- batsmanDismissals(devilliers, "De Villiers")
+grid.arrange(p1,p2,p3, ncol=3)
+
+```
+
+```{r}
+
+p1 <-batsmanMeanStrikeRate(kohli,"Kohli")
+p2 <- batsmanMeanStrikeRate(dhoni, "Dhoni")
+p3 <- batsmanMeanStrikeRate(devilliers, "De Villiers")
+grid.arrange(p1,p2,p3, ncol=3)
+
+```
+
+```{r}
+p1 <-batsmanMovingAverage(kohli,"Kohli")
+p2 <- batsmanMovingAverage(dhoni, "Dhoni")
+p3 <- batsmanMovingAverage(devilliers, "De Villiers")
+grid.arrange(p1,p2,p3, ncol=3)
+```
+
+```{r}
+batsmanRunsAgainstOpposition(kohli,"Kohli")
+batsmanRunsAgainstOpposition(dhoni, "Dhoni")
+batsmanRunsAgainstOpposition(devilliers, "De Villiers")
+
+```
+
+```{r}
+batsmanRunsVenue(kohli,"Kohli")
+batsmanRunsVenue(dhoni, "Dhoni")
+batsmanRunsVenue(devilliers, "De Villiers")
+
+```
+
+```{r}
+p1 <-batsmanRunsVsDeliveries(kohli,"Kohli")
+p2 <- batsmanRunsVsDeliveries(dhoni, "Dhoni")
+p3 <- batsmanRunsVsDeliveries(devilliers, "De Villiers")
+grid.arrange(p1,p2,p3, ncol=3)
+```
+
+```{r}
+par(mfrow=c(1,3))
+par(mar=c(4,4,2,2))
+batsmanRunsPredict(kohli,"Kohli")
+batsmanRunsPredict(dhoni, "Dhoni")
+batsmanRunsPredict(devilliers, "De Villiers")
+dev.off()
+```
+
+```{r cache=TRUE}
+c <- getTeamBowlingDetails("India",save=TRUE)
+d <- getTeamBowlingDetails("Australia",save=TRUE)
+
+```
+
+jadeja <- getBowlerWicketDetails(team="India",name="Jadeja")
+harbhajan <- getBowlerWicketDetails(team="India",name="Harbhajan")
+ashwin <- getBowlerWicketDetails(team="India",name="Ashwin")
+johnson <-  getBowlerWicketDetails(team="Australia",name="Johnson")
+
+
+```{r}
+p1 <- bowlerEconomyRate(jadeja,"RA Jadeja")
+p2<-bowlerEconomyRate(harbhajan, "Harbhajan")
+p3<-bowlerEconomyRate(ashwin, "Ashwin")
+p4<-bowlerEconomyRate(johnson, "MG Johnson")
+grid.arrange(p1,p2,p3,p4, ncol=2)
+```
+
+```{r}
+p1<-bowlerMeanRuns(jadeja,"RA Jadeja")
+p2<-bowlerMeanRuns(harbhajan, "Harbhajan")
+p3<-bowlerMeanRuns(ashwin, "Ashwin")
+p4<-bowlerMeanRuns(johnson, "MG Johnson")
+grid.arrange(p1,p2,p3,p4, ncol=2)
+```
+
+```{r}
+p1<-bowlerMovingAverage(jadeja,"RA Jadeja")
+p2<-bowlerMovingAverage(harbhajan, "Harbhajan")
+p3<-bowlerMovingAverage(ashwin, "Ashwin")
+p4<-bowlerMovingAverage(johnson, "MG Johnson")
+grid.arrange(p1,p2,p3,p4, ncol=2)
+```
+
+```{r}
+p1<-bowlerWicketPlot(jadeja,"RA Jadeja")
+p2<-bowlerWicketPlot(harbhajan, "Harbhajan")
+p3<-bowlerWicketPlot(ashwin, "Ashwin")
+p4<-bowlerWicketPlot(johnson, "MG Johnson")
+grid.arrange(p1,p2,p3,p4, ncol=2)
+```
+
+```{r}
+bowlerWicketsAgainstOpposition(jadeja,"RA Jadeja")
+bowlerWicketsAgainstOpposition(harbhajan, "Harbhajan")
+bowlerWicketsAgainstOpposition(ashwin, "Ashwin")
+bowlerWicketsAgainstOpposition(johnson, "MG Johnson")
+
+```
+
+```{r}
+bowlerWicketsVenue(jadeja,"RA Jadeja")
+bowlerWicketsVenue(harbhajan, "Harbhajan")
+bowlerWicketsVenue(ashwin, "Ashwin")
+bowlerWicketsVenue(johnson, "MG Johnson")
+
+```
+
+```{r}
+jadeja1 <- getDeliveryWickets(team="India",name="Jadeja",save=FALSE)
+harbhajan1 <- getDeliveryWickets(team="India",name="Harbhajan",save=FALSE)
+ashwin1 <- getDeliveryWickets(team="India",name="Ashwin",save=FALSE)
+johnson1 <- getDeliveryWickets(team="Australia",name="MG Johnson",save=FALSE)
+```
+
+```{r}
+par(mfrow=c(1,2))
+par(mar=c(4,4,2,2))
+bowlerWktsPredict(jadeja1,"RA Jadeja")
+bowlerWktsPredict(harbhajan1,"Harbhajan Sigh")
+dev.off()
+```
+
+```{r}
+par(mfrow=c(1,2))
+par(mar=c(4,4,2,2))
+bowlerWktsPredict(ashwin1,"Ravichander Ashwin")
+bowlerWktsPredict(johnson1,"MG Johnson")
+dev.off()
+```
+
+knitr::kable(head(jadeja))
